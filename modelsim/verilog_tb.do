@@ -3,12 +3,12 @@ do {compile_src.do}
 
 
 # run vsim
-vsim channel_ctrl_tb
+vsim sdc_cic3_tb
 
 #
 # Source wave do file
 #
-do {channel_ctrl_tb_wave.do}
+do {sdm_cic3_tb_wave.do}
 
 #
 # Set the window types

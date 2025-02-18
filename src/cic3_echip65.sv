@@ -15,7 +15,9 @@
 
 module cic3_echip65
     (output logic [13:0] out, // filtered output
+    output logic [24:0] digital_monitor, // internal signals
     input logic in, // single bit from sigma-delta modulator
+    input logic [3:0] digital_monitor_sel, // which test point to watch
     input logic clk, // high-speed modulator clk
     input logic reset_n); // asynchronous digital reset (active low)
 
@@ -40,7 +42,28 @@ always_comb begin : coder
         in_coded = 0;
 end // always_comb
 
+// digital monitor
+always_comb 
+    case (digital_monitor_sel)
+        4'b0000: digital_monitor = 'b0;
+        4'b0001: digital_monitor = {24'b0, in};
+        4'b0010: digital_monitor = in_coded;
+        4'b0011: digital_monitor = acc1;
+        4'b0100: digital_monitor = acc2;
+        4'b0101: digital_monitor = acc3;
+        4'b0110: digital_monitor = acc3_d;
+        4'b1111: digital_monitor = diff1;
+        4'b1000: digital_monitor = diff1_d;
+        4'b1001: digital_monitor = diff2;
+        4'b1010: digital_monitor = diff2_d;
+        4'b1011: digital_monitor = diff3;
+        4'b1100: digital_monitor = {17'b0,clock_counter};
+        4'b1101: digital_monitor = divided_clk;
+        4'b1110: digital_monitor = out;
+        4'b1111: digital_monitor = 'b1;
+    endcase 
 // clock assignment
+
 always_comb begin : clock_assign
 //    divided_clk = clock_counter[2]; // D = 8
 //    divided_clk = clock_counter[5]; // D = 64 
