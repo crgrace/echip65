@@ -12,7 +12,7 @@ logic [24:0] digital_monitor;
 logic [3:0] digital_monitor_sel;
 logic clk;
 logic reset_n;
-logic [13:0] cic_out;
+logic [24:0] cic_out;
 
 // clock
 always #10 clk = ~clk; // 50Mhz

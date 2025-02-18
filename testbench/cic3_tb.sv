@@ -8,7 +8,7 @@ logic [3:0] digital_monitor_sel;
 logic in;
 logic clk;
 logic reset_n;
-logic [13:0] out;
+logic [23:0] out;
 
         
 // clock

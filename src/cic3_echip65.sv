@@ -14,7 +14,7 @@
 
 
 module cic3_echip65
-    (output logic [13:0] out, // filtered output
+    (output logic [24:0] out, // filtered output
     output logic [24:0] digital_monitor, // internal signals
     input logic in, // single bit from sigma-delta modulator
     input logic [3:0] digital_monitor_sel, // which test point to watch
@@ -113,24 +113,8 @@ always_ff @ (negedge divided_clk or negedge reset_n) begin
 end // always_ff
 
 /* Clock the CIC3 output into the output register */
-always_ff @ (posedge divided_clk) begin 
-    begin
-        out[13] <= diff3[24];
-        out[12] <= diff3[23];
-        out[11] <= diff3[22];
-        out[10] <= diff3[21]; 
-        out[9] <= diff3[20]; 
-        out[8] <= diff3[19]; 
-        out[7] <= diff3[18]; 
-        out[6] <= diff3[17]; 
-        out[5] <= diff3[16]; 
-        out[4] <= diff3[15]; 
-        out[3] <= diff3[14]; 
-        out[2] <= diff3[13]; 
-        out[1] <= diff3[12]; 
-        out[0] <= diff3[11]; 
-    end 
-end // always_ff
+always_ff @ (posedge divided_clk)  
+    out <= diff3;
 
 endmodule
 
