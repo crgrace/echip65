@@ -14,23 +14,24 @@
 
 
 module cic3_echip65
-    (output logic [24:0] out, // filtered output
-    output logic [24:0] digital_monitor, // internal signals
+    #(parameter NUMBITS = 25) // default D = 256
+    (output logic [NUMBITS-1:0] out, // filtered output
+    output logic [NUMBITS-1:0] digital_monitor, // internal signals
     input logic in, // single bit from sigma-delta modulator
     input logic [3:0] digital_monitor_sel, // which test point to watch
     input logic clk, // high-speed modulator clk
     input logic reset_n); // asynchronous digital reset (active low)
 
-logic [24:0] in_coded; // input coded to 25-bit two's complement
-logic [24:0] acc1;
-logic [24:0] acc2;
-logic [24:0] acc3;
-logic [24:0] acc3_d;
-logic [24:0] diff1;
-logic [24:0] diff2;
-logic [24:0] diff3;
-logic [24:0] diff1_d;
-logic [24:0] diff2_d;
+logic [NUMBITS-1:0] in_coded; // input coded to 25-bit two's complement
+logic [NUMBITS-1:0] acc1;
+logic [NUMBITS-1:0] acc2;
+logic [NUMBITS-1:0] acc3;
+logic [NUMBITS-1:0] acc3_d;
+logic [NUMBITS-1:0] diff1;
+logic [NUMBITS-1:0] diff2;
+logic [NUMBITS-1:0] diff3;
+logic [NUMBITS-1:0] diff1_d;
+logic [NUMBITS-1:0] diff2_d;
 logic [7:0] clock_counter; // 256 decimation ratio
 logic divided_clk;
 
@@ -65,9 +66,10 @@ always_comb
 // clock assignment
 
 always_comb begin : clock_assign
-//    divided_clk = clock_counter[2]; // D = 8
+//    divided_clk = clock_counter[4]; // D = 32
 //    divided_clk = clock_counter[5]; // D = 64 
-    divided_clk = clock_counter[7]; // D = 256
+ //    divided_clk = clock_counter[6]; // D = 128    
+divided_clk = clock_counter[7]; // D = 256
 end // always_comb
 
 // integrators

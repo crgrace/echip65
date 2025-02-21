@@ -44,10 +44,10 @@ sine_wave
 
 sdm_rnm
     sdm_rdm (
-        .Ain        (sine_input),
-        .clk_1mhz   (clk),
+        .analog_in  (sine_input),
+        .clk        (clk),
         .reset_n    (reset_n),
-        .Dout       (modulator_out)
+        .dout       (modulator_out)
         );
 
     
