@@ -25,21 +25,7 @@ initial begin
     reset_n = 0;
     digital_monitor_sel = 0;
     #1000 reset_n = 1;
-
-// test digital monitor
-//    for (int index = 0; index < 16; index++) begin
- //       digital_monitor_sel = index;
- //       repeat (500)
- //           @(negedge clk);
-        
-        checkMonitor();
- //       #500 digital_monitor_sel = digital_monitor_sel + 1;
- //       repeat (500)
- //           @(posedge clk);
-//        $display("test #%d",index);
-//    end // for
-//    $display("%m: Digital Monitor Test Complete");
-
+    checkMonitor();
 end // initial
 
 
@@ -56,7 +42,7 @@ sdm_rnm
         .dout       (modulator_out)
         );
 
-    
+/*    
 cic3_echip65
     cic3_echip65 (
         .out                    (cic_out),
@@ -66,6 +52,17 @@ cic3_echip65
         .clk                    (clk),
         .reset_n                (reset_n)
     );
+*/
+cic3_echip65_v2
+    cic3_echip65 (
+        .out                    (cic_out),
+        .digital_monitor        (digital_monitor),
+        .in                     (modulator_out),
+        .digital_monitor_sel    (digital_monitor_sel),
+        .clk                    (clk),
+        .reset_n                (reset_n)
+    );
+
 
 
 endmodule
