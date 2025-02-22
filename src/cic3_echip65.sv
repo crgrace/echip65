@@ -8,13 +8,15 @@
 //          N = filter order (3 here)
 //          D = decimation factor (256 here)
 //          so W = 3*(8)+1 = 25. 
-//          divide ratio is 256 (need 25 bits minimum internally)
+//          default divide ratio is 256 (need 25 bits minimum internally)
 //          based on sample code provided by ADI in AD7401 datasheet
 ///////////////////////////////////////////////////////////////////
 
 
 module cic3_echip65
-    #(parameter NUMBITS = 25) // default D = 256
+    #(parameter DECIMATION_FACTOR = 256, // default D = 256
+    parameter CLOCK_WIDTH = $clog2(DECIMATION_FACTOR),
+    parameter NUMBITS = 3*CLOCK_WIDTH+1)
     (output logic [NUMBITS-1:0] out, // filtered output
     output logic [NUMBITS-1:0] digital_monitor, // internal signals
     input logic in, // single bit from sigma-delta modulator
@@ -32,9 +34,9 @@ logic [NUMBITS-1:0] diff2;
 logic [NUMBITS-1:0] diff3;
 logic [NUMBITS-1:0] diff1_d;
 logic [NUMBITS-1:0] diff2_d;
-logic [7:0] clock_counter; // 256 decimation ratio
+logic [CLOCK_WIDTH-1:0] clock_counter;
 logic divided_clk;
-
+logic [NUMBITS:0] digital_monitor_mux; // combinational mux output
 // 2's complement encoder
 always_comb begin : coder
     if (in) 
@@ -46,30 +48,27 @@ end // always_comb
 // digital monitor
 always_comb 
     case (digital_monitor_sel)
-        4'b0000: digital_monitor = 'b0;
-        4'b0001: digital_monitor = {24'b0, in};
-        4'b0010: digital_monitor = in_coded;
-        4'b0011: digital_monitor = acc1;
-        4'b0100: digital_monitor = acc2;
-        4'b0101: digital_monitor = acc3;
-        4'b0110: digital_monitor = acc3_d;
-        4'b1111: digital_monitor = diff1;
-        4'b1000: digital_monitor = diff1_d;
-        4'b1001: digital_monitor = diff2;
-        4'b1010: digital_monitor = diff2_d;
-        4'b1011: digital_monitor = diff3;
-        4'b1100: digital_monitor = {17'b0,clock_counter};
-        4'b1101: digital_monitor = divided_clk;
-        4'b1110: digital_monitor = out;
-        4'b1111: digital_monitor = 'b1;
+        4'b0000: digital_monitor_mux = 'b0;
+        4'b0001: digital_monitor_mux = {24'b0, in};
+        4'b0010: digital_monitor_mux = in_coded;
+        4'b0011: digital_monitor_mux = acc1;
+        4'b0100: digital_monitor_mux = acc2;
+        4'b0101: digital_monitor_mux = acc3;
+        4'b0110: digital_monitor_mux = acc3_d;
+        4'b1111: digital_monitor_mux = diff1;
+        4'b1000: digital_monitor_mux = diff1_d;
+        4'b1001: digital_monitor_mux = diff2;
+        4'b1010: digital_monitor_mux = diff2_d;
+        4'b1011: digital_monitor_mux = diff3;
+        4'b1100: digital_monitor_mux = {17'b0,clock_counter};
+        4'b1101: digital_monitor_mux = {24'b0, divided_clk};
+        4'b1110: digital_monitor_mux = out;
+        4'b1111: digital_monitor_mux = 'b1;
     endcase 
 // clock assignment
 
 always_comb begin : clock_assign
-//    divided_clk = clock_counter[4]; // D = 32
-//    divided_clk = clock_counter[5]; // D = 64 
- //    divided_clk = clock_counter[6]; // D = 128    
-divided_clk = clock_counter[7]; // D = 256
+    divided_clk = clock_counter[CLOCK_WIDTH-1]; 
 end // always_comb
 
 // integrators
@@ -114,9 +113,13 @@ always_ff @ (negedge divided_clk or negedge reset_n) begin
     end
 end // always_ff
 
-/* Clock the CIC3 output into the output register */
+// Clock the CIC3 output into the output register
 always_ff @ (posedge divided_clk)  
     out <= diff3;
+
+// clock digital monitor
+always_ff @ (posedge clk) 
+    digital_monitor <= digital_monitor_mux;
 
 endmodule
 

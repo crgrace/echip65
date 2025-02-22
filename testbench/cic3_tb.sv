@@ -24,16 +24,7 @@ initial begin
     in = 0;
     reset_n = 0;
     #1000 reset_n = 1;
-// CIC3 test (step response test)
-    #405500 in = 1;
-// now test digital_monitor
-    for (int index = 0; index < 16; index++) begin
-        digital_monitor_sel = index;
-        #472834 checkMonitor(digital_monitor,digital_monitor_sel);
-        #500 digital_monitor_sel = digital_monitor_sel + 1;
-    end // for
-    $display("Digital Monitor Test Complete");
-
+    checkMonitor();
 end // initial
 
 cic3_echip65

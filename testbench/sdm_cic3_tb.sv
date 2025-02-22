@@ -27,12 +27,18 @@ initial begin
     #1000 reset_n = 1;
 
 // test digital monitor
-    for (int index = 0; index < 16; index++) begin
-        digital_monitor_sel = index;
-        #472834 checkMonitor(digital_monitor,digital_monitor_sel);
-        #500 digital_monitor_sel = digital_monitor_sel + 1;
-    end // for
-    $display("%m: Digital Monitor Test Complete");
+//    for (int index = 0; index < 16; index++) begin
+ //       digital_monitor_sel = index;
+ //       repeat (500)
+ //           @(negedge clk);
+        
+        checkMonitor();
+ //       #500 digital_monitor_sel = digital_monitor_sel + 1;
+ //       repeat (500)
+ //           @(posedge clk);
+//        $display("test #%d",index);
+//    end // for
+//    $display("%m: Digital Monitor Test Complete");
 
 end // initial
 
