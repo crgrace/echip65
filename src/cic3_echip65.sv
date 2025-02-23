@@ -55,7 +55,7 @@ always_comb
         4'b0100: digital_monitor_mux = acc2;
         4'b0101: digital_monitor_mux = acc3;
         4'b0110: digital_monitor_mux = acc3_d;
-        4'b1111: digital_monitor_mux = diff1;
+        4'b0111: digital_monitor_mux = diff1;
         4'b1000: digital_monitor_mux = diff1_d;
         4'b1001: digital_monitor_mux = diff2;
         4'b1010: digital_monitor_mux = diff2_d;
