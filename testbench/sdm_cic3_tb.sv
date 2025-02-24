@@ -42,7 +42,7 @@ sdm_rnm
         .dout       (modulator_out)
         );
 
-/*    
+    
 cic3_echip65
     cic3_echip65 (
         .out                    (cic_out),
@@ -52,7 +52,7 @@ cic3_echip65
         .clk                    (clk),
         .reset_n                (reset_n)
     );
-*/
+/*
 cic3_echip65_v2
     cic3_echip65 (
         .out                    (cic_out),
@@ -62,7 +62,7 @@ cic3_echip65_v2
         .clk                    (clk),
         .reset_n                (reset_n)
     );
-
+*/
 
 
 endmodule

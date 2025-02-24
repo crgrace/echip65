@@ -16,7 +16,7 @@
 ///////////////////////////////////////////////////////////////////
 
 
-module cic3_echip65_v2
+module cic3_echip65
     #(parameter DECIMATION_FACTOR = 256, // default D = 256
     parameter CLOCK_WIDTH = $clog2(DECIMATION_FACTOR),
     parameter NUMBITS = 3*CLOCK_WIDTH+1)
@@ -101,13 +101,13 @@ always_ff @ (posedge clk or negedge reset_n) begin
                 acc3_d <= acc3; 
                 diff1_d <= diff1; 
                 diff2_d <= diff2; 
-                diff_flag = 1'b1;
+                diff_flag <= 1'b1;
             end
         end 
         else begin
             if (diff_flag == 1'b1) begin
                 out <= diff3;
-                diff_flag = 1'b0;
+                diff_flag <= 1'b0;
             end
         end // if
     end

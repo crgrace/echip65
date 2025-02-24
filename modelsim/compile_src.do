@@ -11,7 +11,7 @@ vmap work
 #
 # Design sources
 #
-vlog -incr -sv "../src/cic3_echip65.sv" 
+#vlog -incr -sv "../src/cic3_echip65.sv" 
 vlog -incr -sv "../src/cic3_echip65_v2.sv" 
 vlog -incr -sv "../src/sine_wave.sv" 
 vlog -incr -sv "../src/sdm_rnm.sv" 
