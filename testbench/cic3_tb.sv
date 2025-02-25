@@ -3,13 +3,11 @@
 module cic3_tb();
 
 // local signals
-logic [24:0] digital_monitor;
 logic [3:0] digital_monitor_sel;
 logic in;
 logic clk;
 logic reset_n;
-logic [23:0] out;
-
+logic [24:0] cic_out;
         
 // clock
 always #100 clk = ~clk; // 5Mhz
@@ -29,8 +27,7 @@ end // initial
 
 cic3_echip65
     cic3_echip65 (
-        .out                    (out),
-        .digital_monitor        (digital_monitor),
+        .out                    (cic_out),
         .in                     (in),
         .digital_monitor_sel    (digital_monitor_sel),
         .clk                    (clk),

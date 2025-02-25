@@ -1,18 +1,18 @@
 `timescale 1ns/10ps
+`define SHAREDCLK // define for version with clock seperate from filter
+
 
 module sdm_cic3_tb();
-
 
 real sine_input;
 
 // local signals
 
 logic modulator_out;
-logic [24:0] digital_monitor;
 logic [3:0] digital_monitor_sel;
 logic clk;
 logic reset_n;
-logic [24:0] cic_out;
+logic [24:0] out;
 
 // clock
 always #10 clk = ~clk; // 50Mhz
@@ -45,24 +45,12 @@ sdm_rnm
     
 cic3_echip65
     cic3_echip65 (
-        .out                    (cic_out),
-        .digital_monitor        (digital_monitor),
+        .out                    (out),
         .in                     (modulator_out),
         .digital_monitor_sel    (digital_monitor_sel),
         .clk                    (clk),
         .reset_n                (reset_n)
     );
-/*
-cic3_echip65_v2
-    cic3_echip65 (
-        .out                    (cic_out),
-        .digital_monitor        (digital_monitor),
-        .in                     (modulator_out),
-        .digital_monitor_sel    (digital_monitor_sel),
-        .clk                    (clk),
-        .reset_n                (reset_n)
-    );
-*/
 
 
 endmodule

@@ -14,7 +14,7 @@ real       time_us, time_s ;
 bit        sampling_clock;
 real       freq = 1.0231e3;
 real       offset = 0.0;
-real       ampl = 0.9;
+real       ampl = 0.99;
 
 always sampling_clock = #(sampling_time) ~sampling_clock;
 
