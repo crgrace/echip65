@@ -37,7 +37,7 @@ logic [NUMBITS-1:0] diff3;
 logic [NUMBITS-1:0] diff1_d;
 logic [NUMBITS-1:0] diff2_d;
 logic [NUMBITS-1:0] cic3_out;
-logic [NUMBITS:0] digital_mux; // combinational mux output
+logic [NUMBITS-1:0] digital_mux; // combinational mux output
 
 // 2's complement encoder
 always_comb begin : coder
