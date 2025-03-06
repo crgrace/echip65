@@ -48,8 +48,8 @@ generate
     for (j=0; j<NUM_FILTERS_SUBSECTION; j=j+1) begin : FILTERS_LEFT
         cic3_echip65_noclk
             cic3_echip65_noclk (
-                .out                    (out[j]),
-                .in                     (in),
+                .out                    (out[(j+1)*25:j*25]), //25-bit digital output for filter
+                .in                     (in), 
                 .clk                    (clk),
                 .divided_clk            (divided_clk),
                 .digital_monitor_sel    (digital_monitor_selL),
@@ -63,7 +63,7 @@ generate
     for (i=0; i<NUM_FILTERS_SUBSECTION; i=i+1) begin : FILTERS_RIGHT
         cic3_echip65_noclk
             cic3_echip65_noclk (
-                .out                    (out[i]),
+                .out                    (out[(i+1)*25:i*25]), //25-bit digital output for filter
                 .in                     (in),
                 .clk                    (clk),
                 .divided_clk            (divided_clk),

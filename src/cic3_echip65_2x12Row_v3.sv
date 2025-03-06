@@ -38,7 +38,7 @@ generate
     for (j=0; j<NUM_FILTERS_SUBSECTION; j=j+1) begin : FILTERS_LEFT
         cic3_echip65
             cic3_echip65 (
-                .out                    (out[j]),
+                .out                    (out[(j+1)*25:j*25]), //25-bit digital output for filter
                 .in                     (in),
                 .digital_monitor_sel    (digital_monitor_selL),
                 .clk                    (clk),
@@ -52,7 +52,7 @@ generate
     for (i=0; i<NUM_FILTERS_SUBSECTION; i=i+1) begin : FILTERS_RIGHT
         cic3_echip65
             cic3_echip65(
-                .out                    (out[i]),
+                .out                    (out[(i+1)*25:i*25]), //25-bit digital output for filter
                 .in                     (in),
                 .digital_monitor_sel    (digital_monitor_selR),
                 .clk                    (clk),
