@@ -13,26 +13,30 @@
 //
 //   DOES NOT INCLUDE MONTIOR MUX
 //   IS NOT PARAMETERIZED
+//   JJ (03/06/25): added in parametrization
 ///////////////////////////////////////////////////////////////////
 
 
 module cic3_echip65
-    (output logic [24:0] out, // filtered output
+    #(parameter DECIMATION_FACTOR = 256, // default D = 256
+    parameter CLOCK_WIDTH = $clog2(DECIMATION_FACTOR),
+    parameter NUMBITS = 3*CLOCK_WIDTH+1)
+    (output logic [NUMBITS-1:0] out, // filtered output
     input logic in, // single bit from sigma-delta modulator
     input logic clk, // high-speed modulator clk
     input logic reset_n); // asynchronous digital reset (active low)
 
-logic [24:0] in_coded; // input coded to 25-bit two's complement
-logic [24:0] acc1;
-logic [24:0] acc2;
-logic [24:0] acc3;
-logic [24:0] acc3_d;
-logic [24:0] diff1;
-logic [24:0] diff2;
-logic [24:0] diff3;
-logic [24:0] diff1_d;
-logic [24:0] diff2_d;
-logic [7:0] clock_counter; // 256 decimation ratio
+logic [NUMBITS-1:0] in_coded; // input coded to 25-bit two's complement
+logic [NUMBITS-1:0] acc1;
+logic [NUMBITS-1:0] acc2;
+logic [NUMBITS-1:0] acc3;
+logic [NUMBITS-1:0] acc3_d;
+logic [NUMBITS-1:0] diff1;
+logic [NUMBITS-1:0] diff2;
+logic [NUMBITS-1:0] diff3;
+logic [NUMBITS-1:0] diff1_d;
+logic [NUMBITS-1:0] diff2_d;
+logic [CLOCK_WIDTH-1:0] clock_counter; // 256 decimation ratio
 logic divided_clk;
 
 // 2's complement encoder
@@ -45,9 +49,7 @@ end // always_comb
 
 // clock assignment
 always_comb begin : clock_assign
-//    divided_clk = clock_counter[2]; // D = 8
-//    divided_clk = clock_counter[5]; // D = 64 
-    divided_clk = clock_counter[7]; // D = 256
+    divided_clk = clock_counter[CLOCK_WIDTH-1]; 
 end // always_comb
 
 // integrators
@@ -62,14 +64,6 @@ always_ff @ (posedge clk or negedge reset_n) begin
         acc2 <= acc2 + acc1; 
         acc3 <= acc3 + acc2;  
     end
-end // always_ff
-
-// clock divider
-always_ff @ (posedge clk or negedge reset_n) begin
-    if (!reset_n)
-        clock_counter <= 'b0; 
-    else 
-        clock_counter <= clock_counter + 1'b1;
 end // always_ff
 
 // differentiators
@@ -93,8 +87,23 @@ always_ff @ (negedge divided_clk or negedge reset_n) begin
 end // always_ff
 
 /* Clock the CIC3 output into the output register */
-always_ff @ (posedge divided_clk)      
+// JJ: to match clocking of out of other filter versions, this assignment is now below
+/*always_ff @ (posedge divided_clk)      
     out <= diff3;
+*/
+
+// timing and output logic
+always_ff @ (posedge clk or negedge reset_n) begin
+    if (!reset_n) begin
+        clock_counter <= 'b0; 
+        out <= 'b0;
+    end
+    else begin 
+        clock_counter <= clock_counter + 1'b1;
+        out <= diff3;
+    end
+end // always_ff
+
 
 endmodule
 
