@@ -88,11 +88,9 @@ end // always_ff
 // timing and output logic
 always_ff @ (posedge clk or negedge reset_n) begin
     if (!reset_n) begin
-        clock_counter <= 'b0; 
         out <= 'b0;
     end
     else begin 
-        clock_counter <= clock_counter + 1'b1;
         out <= diff3;
     end
 end // always_ff

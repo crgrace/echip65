@@ -16,12 +16,12 @@ module cic3_echip65_2x12Row
 parameter NUM_FILTERS_SUBSECTION = 12,
 parameter NUM_SUBSECTIONS = 2
 )
-(output logic [(NUM_FILTERS_SUBSECTION*NUM_SUBSECTIONS-1):0] out,
+(output logic [(NUM_FILTERS_SUBSECTION*NUM_SUBSECTIONS*25-1):0] out,
 input logic in, //common modulator input
 input logic [3:0] digital_monitor_selR, // which test point to watch (right subblock of 12 filters)
 input logic [3:0] digital_monitor_selL, // which test point to watch (left subblock of 12 filters)
 input logic clk, //common "high spped" modulator clk
-input logic reset_n, // common async. reset active low
+input logic reset_n // common async. reset active low
 );
 
 /*
@@ -33,12 +33,17 @@ divided_clk is generated internally to each filter.
 Will have both rvt and hvt flavours synthesized.
 */
 
-genvar j
+logic [(NUM_FILTERS_SUBSECTION*25-1):0] outR; //output bits from FILTERS_RIGHT
+logic [(NUM_FILTERS_SUBSECTION*25-1):0] outL; //output bits from FILTERS_LEFT
+
+assign out = {outL,outR}; //concatinating 
+
+genvar j;
 generate
     for (j=0; j<NUM_FILTERS_SUBSECTION; j=j+1) begin : FILTERS_LEFT
         cic3_echip65
             cic3_echip65 (
-                .out                    (out[(j+1)*25:j*25]), //25-bit digital output for filter
+                .out                    (outL[(j+1)*25-1:j*25]), //25-bit digital output for filter
                 .in                     (in),
                 .digital_monitor_sel    (digital_monitor_selL),
                 .clk                    (clk),
@@ -47,12 +52,12 @@ generate
     end
 endgenerate
 
-genvar i
+genvar i;
 generate
     for (i=0; i<NUM_FILTERS_SUBSECTION; i=i+1) begin : FILTERS_RIGHT
         cic3_echip65
             cic3_echip65(
-                .out                    (out[(i+1)*25:i*25]), //25-bit digital output for filter
+                .out                    (outR[(i+1)*25-1:i*25]), //25-bit digital output for filter
                 .in                     (in),
                 .digital_monitor_sel    (digital_monitor_selR),
                 .clk                    (clk),

@@ -17,10 +17,10 @@ module cic3_echip65_2x12Row
 parameter NUM_FILTERS_SUBSECTION = 12,
 parameter NUM_SUBSECTIONS = 2
 )
-(output logic [(NUM_FILTERS_SUBSECTION*NUM_SUBSECTIONS-1):0] out,
+(output logic [(NUM_FILTERS_SUBSECTION*NUM_SUBSECTIONS*25-1):0] out,
 input logic in, //common modulator input
 input logic clk, //common "high spped" modulator clk
-input logic reset_n, // common async. reset active low
+input logic reset_n // common async. reset active low
 );
 
 /*
@@ -32,6 +32,10 @@ Will have both rvt and hvt flavours synthesized.
 */
 
 logic divided_clk;
+logic [(NUM_FILTERS_SUBSECTION*25-1):0] outR; //output bits from FILTERS_RIGHT
+logic [(NUM_FILTERS_SUBSECTION*25-1):0] outL; //output bits from FILTERS_LEFT
+
+assign out = {outL,outR}; //concatinating 
 
 // clk divider to generate differentiator clocks
 cic3_clkdiv
@@ -41,12 +45,12 @@ cic3_clkdiv
         .reset_n                (reset_n)
     );
 
-genvar j
+genvar j;
 generate
     for (j=0; j<NUM_FILTERS_SUBSECTION; j=j+1) begin : FILTERS_LEFT
         cic3_echip65_noclk
             cic3_echip65_noclk (
-                .out                    (out[(j+1)*25:j*25]), //25-bit digital output for filter
+                .out                    (outL[(j+1)*25-1:j*25]), //25-bit digital output for filter
                 .in                     (in),
                 .clk                    (clk),
                 .divided_clk            (divided_clk),
@@ -55,12 +59,12 @@ generate
     end
 endgenerate
 
-genvar i
+genvar i;
 generate
     for (i=0; i<NUM_FILTERS_SUBSECTION; i=i+1) begin : FILTERS_RIGHT
         cic3_echip65_noclk
             cic3_echip65_noclk (
-                .out                    (out[(i+1)*25:i*25]), //25-bit digital output for filter
+                .out                    (outR[(i+1)*25-1:i*25]), //25-bit digital output for filter
                 .in                     (in),
                 .clk                    (clk),
                 .divided_clk            (divided_clk),
