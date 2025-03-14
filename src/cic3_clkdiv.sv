@@ -6,6 +6,10 @@
 //          Intended to see how much power savings are possible 
 ///////////////////////////////////////////////////////////////////
 
+/*
+JJ (03/13/25): made change from posedge to negedge of clk for always_ff.
+               See cic3_echip65_simple_noclk.sv or cic3_echip65_noclk.sv for more details.
+*/
 
 module cic3_clkdiv
     #(parameter DECIMATION_FACTOR = 256, // default D = 256
@@ -22,7 +26,8 @@ always_comb begin : clock_assign
 end // always_comb
 
 // clock divider
-always_ff @ (posedge clk or negedge reset_n) begin
+// always_ff @ (posedge clk or negedge reset_n) begin
+always_ff @ (negedge clk or negedge reset_n) begin
     if (!reset_n)
         clock_counter <= 'b0; 
     else 

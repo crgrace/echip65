@@ -16,7 +16,7 @@
 //   JJ (03/06/25): added in parametrization
 ///////////////////////////////////////////////////////////////////
 
-module cic3_echip65_noclk
+module cic3_echip65 //cic3_echip65_noclk
     #(parameter DECIMATION_FACTOR = 256, // default D = 256
     parameter CLOCK_WIDTH = $clog2(DECIMATION_FACTOR),
     parameter NUMBITS = 3*CLOCK_WIDTH+1)
@@ -36,6 +36,23 @@ logic [NUMBITS-1:0] diff2;
 logic [NUMBITS-1:0] diff3;
 logic [NUMBITS-1:0] diff1_d;
 logic [NUMBITS-1:0] diff2_d;
+
+/*
+JJ (03/13/25): updated clking setup of filter because previous implementation led to difficulties meeting hold time target slack
+Original:
+integrators update on posedge of clk
+clock_counter updates on posedge of clk
+    -so MSB transitions both going HIGH and LOW are on posedge of clk
+differentiators update on negedge of divided_clk (which aligns with posedge of clk)
+End result: update of integrators, downsampling and update of differentiators all effectively happen on same posedge of clk 
+
+Updated:
+integrators update on posedge of clk
+clock_counter updates on NEGEDGE of clk
+    -so MSB transitions both going HIGH and LOW are on NEGEDGE of clk
+differentiators update on posedge of divided_clk (which aligns with negedge of clk)
+End result: update of integrators and the downsampling + update of differentiators are seperated by 1/2 fast input filter clk period
+*/
 
 // 2's complement encoder
 always_comb begin : coder
@@ -60,7 +77,8 @@ always_ff @ (posedge clk or negedge reset_n) begin
 end // always_ff
 
 // differentiators
-always_ff @ (negedge divided_clk or negedge reset_n) begin 
+// always_ff @ (negedge divided_clk or negedge reset_n) begin 
+always_ff @ (posedge divided_clk or negedge reset_n) begin 
     if(!reset_n) begin
         acc3_d <= 'b0; 
         diff1_d <= 'b0; 
@@ -80,21 +98,16 @@ always_ff @ (negedge divided_clk or negedge reset_n) begin
 end // always_ff
 
 /* Clock the CIC3 output into the output register */
-// JJ: to match clocking of out of other filter versions, this assignment is now below
-/*always_ff @ (posedge divided_clk)      
-    out <= diff3;
-*/
-
-// timing and output logic
-always_ff @ (posedge clk or negedge reset_n) begin
-    if (!reset_n) begin
+// JJ: to optimize power savings, for "simple" base filter version, moved output clocking to use divided_clk
+// always_ff @ (posedge divided_clk or negedge reset_n) begin
+always_ff @ (negedge divided_clk or negedge reset_n) begin
+    if (!reset_n) begin  
         out <= 'b0;
     end
-    else begin 
+    else begin  
         out <= diff3;
     end
 end // always_ff
-
 
 endmodule
 

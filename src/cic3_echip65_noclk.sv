@@ -14,8 +14,7 @@
 //          This version expects an external divided_clk
 ///////////////////////////////////////////////////////////////////
 
-
-module cic3_echip65_noclk
+module cic3_echip65 //cic3_echip65_noclk
     #(parameter DECIMATION_FACTOR = 256, // default D = 256
     parameter CLOCK_WIDTH = $clog2(DECIMATION_FACTOR),
     parameter NUMBITS = 3*CLOCK_WIDTH+1)
@@ -38,6 +37,23 @@ logic [NUMBITS-1:0] diff1_d;
 logic [NUMBITS-1:0] diff2_d;
 logic [NUMBITS-1:0] cic3_out;
 logic [NUMBITS-1:0] digital_mux; // combinational mux output
+
+/*
+JJ (03/13/25): updated clking setup of filter because previous implementation led to difficulties meeting hold time target slack
+Original:
+integrators update on posedge of clk
+clock_counter updates on posedge of clk
+    -so MSB transitions both going HIGH and LOW are on posedge of clk
+differentiators update on negedge of divided_clk (which aligns with posedge of clk)
+End result: update of integrators, downsampling and update of differentiators all effectively happen on same posedge of clk 
+
+Updated:
+integrators update on posedge of clk
+clock_counter updates on NEGEDGE of clk
+    -so MSB transitions both going HIGH and LOW are on NEGEDGE of clk
+differentiators update on posedge of divided_clk (which aligns with negedge of clk)
+End result: update of integrators and the downsampling + update of differentiators are seperated by 1/2 fast input filter clk period
+*/
 
 // 2's complement encoder
 always_comb begin : coder
@@ -84,7 +100,8 @@ always_ff @ (posedge clk or negedge reset_n) begin
 end // always_ff
 
 // differentiators
-always_ff @ (negedge divided_clk or negedge reset_n) begin 
+// always_ff @ (negedge divided_clk or negedge reset_n) begin 
+always_ff @ (posedge divided_clk or negedge reset_n) begin 
     if(!reset_n) begin
         acc3_d <= 'b0; 
         diff1_d <= 'b0; 
@@ -104,17 +121,29 @@ always_ff @ (negedge divided_clk or negedge reset_n) begin
 end // always_ff
 
 // timing and output logic
+/*
+JJ: diff3 gets updated essentially on negedge of clk so cic3_out should be assigned to on posedge of clk
+    and then output should be assigned to on negedge of the clk (this allows for matching w/ V1 and V2 as well)
+*/
 always_ff @ (posedge clk or negedge reset_n) begin
     if (!reset_n) begin
         cic3_out <= 'b0;
-        out <= 'b0;
+        // out <= 'b0;
     end 
     else begin 
         cic3_out <= diff3;
-        out <= digital_mux;
+        // out <= digital_mux;
     end
 end // always_ff
 
+always_ff @ (negedge clk or negedge reset_n) begin
+    if (!reset_n) begin 
+        out <= 'b0;
+    end
+    else begin 
+        out <= digital_mux;
+    end
+end // always_ff
 
 
 endmodule
