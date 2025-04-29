@@ -16,26 +16,26 @@
 //   JJ (03/06/25): added in parametrization
 ///////////////////////////////////////////////////////////////////
 
-module cic3_echip65_noclk //cic3_echip65_noclk
-    #(parameter DECIMATION_FACTOR = 256, // default D = 256
-    parameter CLOCK_WIDTH = $clog2(DECIMATION_FACTOR),
-    parameter NUMBITS = 3*CLOCK_WIDTH+1)
-    (output logic [NUMBITS-1:0] out, // filtered output
+module cic3_echip65_simple_noclk //cic3_echip65_noclk
+    // #(parameter DECIMATION_FACTOR = 256, // default D = 256
+    // parameter CLOCK_WIDTH = $clog2(DECIMATION_FACTOR),
+    // parameter NUMBITS = 3*CLOCK_WIDTH+1)
+    (output logic [25-1:0] out, // filtered output
     input logic in, // single bit from sigma-delta modulator
     input logic clk, // high-speed modulator clk
     input logic divided_clk, // clock divided by DECIMATION_FACTOR
     input logic reset_n); // asynchronous digital reset (active low)
 
-logic [NUMBITS-1:0] in_coded; // input coded to 25-bit two's complement
-logic [NUMBITS-1:0] acc1;
-logic [NUMBITS-1:0] acc2;
-logic [NUMBITS-1:0] acc3;
-logic [NUMBITS-1:0] acc3_d;
-logic [NUMBITS-1:0] diff1;
-logic [NUMBITS-1:0] diff2;
-logic [NUMBITS-1:0] diff3;
-logic [NUMBITS-1:0] diff1_d;
-logic [NUMBITS-1:0] diff2_d;
+logic [25-1:0] in_coded; // input coded to 25-bit two's complement
+logic [25-1:0] acc1;
+logic [25-1:0] acc2;
+logic [25-1:0] acc3;
+logic [25-1:0] acc3_d;
+logic [25-1:0] diff1;
+logic [25-1:0] diff2;
+logic [25-1:0] diff3;
+logic [25-1:0] diff1_d;
+logic [25-1:0] diff2_d;
 
 /*
 JJ (03/13/25): updated clking setup of filter because previous implementation led to difficulties meeting hold time target slack

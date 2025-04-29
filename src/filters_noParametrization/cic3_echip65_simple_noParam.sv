@@ -16,26 +16,27 @@
 //   JJ (03/06/25): added in parametrization
 ///////////////////////////////////////////////////////////////////
 
-module cic3_echip65_noclk //cic3_echip65_noclk
-    #(parameter DECIMATION_FACTOR = 256, // default D = 256
-    parameter CLOCK_WIDTH = $clog2(DECIMATION_FACTOR),
-    parameter NUMBITS = 3*CLOCK_WIDTH+1)
-    (output logic [NUMBITS-1:0] out, // filtered output
+module cic3_echip65_simple
+    // #(parameter DECIMATION_FACTOR = 256, // default D = 256
+    // parameter CLOCK_WIDTH = $clog2(DECIMATION_FACTOR), //default = 8
+    // parameter NUMBITS = 3*CLOCK_WIDTH+1) //default  = 25
+    (output logic [25-1:0] out, // filtered output
     input logic in, // single bit from sigma-delta modulator
     input logic clk, // high-speed modulator clk
-    input logic divided_clk, // clock divided by DECIMATION_FACTOR
     input logic reset_n); // asynchronous digital reset (active low)
 
-logic [NUMBITS-1:0] in_coded; // input coded to 25-bit two's complement
-logic [NUMBITS-1:0] acc1;
-logic [NUMBITS-1:0] acc2;
-logic [NUMBITS-1:0] acc3;
-logic [NUMBITS-1:0] acc3_d;
-logic [NUMBITS-1:0] diff1;
-logic [NUMBITS-1:0] diff2;
-logic [NUMBITS-1:0] diff3;
-logic [NUMBITS-1:0] diff1_d;
-logic [NUMBITS-1:0] diff2_d;
+logic [25-1:0] in_coded; // input coded to 25-bit two's complement
+logic [25-1:0] acc1;
+logic [25-1:0] acc2;
+logic [25-1:0] acc3;
+logic [25-1:0] acc3_d;
+logic [25-1:0] diff1;
+logic [25-1:0] diff2;
+logic [25-1:0] diff3;
+logic [25-1:0] diff1_d;
+logic [25-1:0] diff2_d;
+logic [8-1:0] clock_counter; // 256 decimation ratio
+logic divided_clk;
 
 /*
 JJ (03/13/25): updated clking setup of filter because previous implementation led to difficulties meeting hold time target slack
@@ -60,6 +61,11 @@ always_comb begin : coder
         in_coded = 1;
     else
         in_coded = 0;
+end // always_comb
+
+// clock assignment
+always_comb begin : clock_assign
+    divided_clk = clock_counter[8-1];
 end // always_comb
 
 // integrators
@@ -99,13 +105,27 @@ end // always_ff
 
 /* Clock the CIC3 output into the output register */
 // JJ: to optimize power savings, for "simple" base filter version, moved output clocking to use divided_clk
-// always_ff @ (posedge divided_clk or negedge reset_n) begin
+// JJ: so, wrt to clk, output is registered on negedge of clk
+//always_ff @ (posedge divided_clk or negedge reset_n) begin
 always_ff @ (negedge divided_clk or negedge reset_n) begin
     if (!reset_n) begin  
         out <= 'b0;
     end
     else begin  
         out <= diff3;
+    end
+end // always_ff
+
+// timing and output logic
+// always_ff @ (posedge clk or negedge reset_n) begin
+always_ff @ (negedge clk or negedge reset_n) begin
+    if (!reset_n) begin
+        clock_counter <= 'b0; 
+        // out <= 'b0;
+    end
+    else begin 
+        clock_counter <= clock_counter + 1'b1;
+        // out <= diff3;
     end
 end // always_ff
 

@@ -1,6 +1,5 @@
 `timescale 1ns/10ps
-`define SHAREDCLK // define for version with clock seperate from filter
-
+// `define SHAREDCLK // define for version with clock seperate from filter
 
 module sdm_cic3_tb();
 
@@ -13,21 +12,23 @@ logic [3:0] digital_monitor_sel;
 logic clk;
 logic reset_n;
 logic [24:0] out;
+logic [24:0] out_sampled;
 
 // clock
-always #10 clk = ~clk; // 50Mhz
+always #5 clk = ~clk; // 100Mhz; breaks down at 125MHz (8ns period, 4ns half period)
 
 // testing tasks
-`include "echip65_tasks.sv"
+//`include "echip65_tasks.sv"
 
 initial begin
     clk = 0;
     reset_n = 0;
     digital_monitor_sel = 0;
     #1000 reset_n = 1;
-    checkMonitor();
+    // checkMonitor();
 end // initial
 
+always @(posedge clk) out_sampled = out;
 
 sine_wave
     sine_wave (
@@ -42,16 +43,22 @@ sdm_rnm
         .dout       (modulator_out)
         );
 
-    
 cic3_echip65
     cic3_echip65 (
         .out                    (out),
         .in                     (modulator_out),
-        .digital_monitor_sel    (digital_monitor_sel),
+        // .digital_monitor_sel    (digital_monitor_sel),
         .clk                    (clk),
         .reset_n                (reset_n)
     );
 
+// cic3_echip65
+//     cic3_echip65 (
+//         .out                    (out),
+//         .in                     (modulator_out),
+//         // .digital_monitor_sel    (digital_monitor_sel),
+//         .clk                    (clk),
+//         .reset_n                (reset_n)
+//     );
 
 endmodule
-

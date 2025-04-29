@@ -14,7 +14,7 @@
 //          This version expects an external divided_clk
 ///////////////////////////////////////////////////////////////////
 
-module cic3_echip65 //cic3_echip65_noclk
+module cic3_echip65_noclk //cic3_echip65_noclk
     #(parameter DECIMATION_FACTOR = 256, // default D = 256
     parameter CLOCK_WIDTH = $clog2(DECIMATION_FACTOR),
     parameter NUMBITS = 3*CLOCK_WIDTH+1)

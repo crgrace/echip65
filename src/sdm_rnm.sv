@@ -16,7 +16,7 @@ real sdm_sum1;
 real sdm_sum2;
 real test;
 
-always @(negedge clk)
+always @(negedge clk) //@(negedge clk)
 begin
     delay[1] = sdm_sum1;
     delay[2] = test;
